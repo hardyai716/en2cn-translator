@@ -12,7 +12,8 @@ const domainEl = document.getElementById('current-domain');
 const siteToggleBtn = document.getElementById('btn-site-toggle');
 const langSelect = document.getElementById('lang-direction');
 const customSelectorsInput = document.getElementById('custom-selectors');
-const btnExport = document.getElementById('btn-export');
+const btnExportMd = document.getElementById('btn-export-md');
+const btnExportTxt = document.getElementById('btn-export-txt');
 const btnClear = document.getElementById('btn-clear-cache');
 const btnHideAll = document.getElementById('btn-hide-all');
 const statusDot = document.getElementById('status-dot');
@@ -169,17 +170,22 @@ customSelectorsInput.addEventListener('change', async () => {
   notifyContent({ enabled, direction, customSelectors, disabledDomains });
 });
 
-// 导出译文
-btnExport.addEventListener('click', async () => {
+// 导出 Markdown
+async function handleExport(format, btn) {
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs[0]?.id) {
-      await chrome.tabs.sendMessage(tabs[0].id, { type: 'EXPORT_TRANSLATIONS' });
-      btnExport.textContent = '✓ 已导出';
-      setTimeout(() => { btnExport.textContent = '📥 导出译文 (Markdown)'; }, 2000);
+      await chrome.tabs.sendMessage(tabs[0].id, { type: 'EXPORT_TRANSLATIONS', format });
+      btn.textContent = '✓ 已导出';
+      setTimeout(() => { btn.textContent = btn.dataset.label; }, 2000);
     }
   } catch (_) { /* noop */ }
-});
+}
+
+btnExportMd.dataset.label = '📥 导出 .md';
+btnExportMd.addEventListener('click', () => handleExport('markdown', btnExportMd));
+btnExportTxt.dataset.label = '📥 导出 .txt';
+btnExportTxt.addEventListener('click', () => handleExport('text', btnExportTxt));
 
 // 清空缓存
 btnClear.addEventListener('click', async () => {

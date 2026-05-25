@@ -340,7 +340,7 @@
           case 'hide-all-translations': handleShortcutHideAll(); break;
         }
       } else if (request.type === 'EXPORT_TRANSLATIONS') {
-        handleExport();
+        handleExport(request.format || 'markdown');
       } else if (request.type === 'GET_STATS') {
         const translated = document.querySelectorAll(`.${CFG.NS}-result`).length;
         const hostname = window.location.hostname;
@@ -420,35 +420,56 @@
   //  导出译文
   // ================================================================
 
-  function handleExport() {
+  function handleExport(format) {
     const results = document.querySelectorAll(`.${CFG.NS}-result`);
     if (results.length === 0) return;
 
     const hostname = window.location.hostname;
     const date = new Date().toISOString().slice(0, 10);
-    const lines = [`# 翻译导出 — ${hostname} — ${date}`, ''];
+    const pairs = [];
 
-    results.forEach((div, i) => {
+    results.forEach((div) => {
       const para = div.previousElementSibling;
-      const original = para ? para.textContent.trim() : '';
-      const translated = div.querySelector(`.${CFG.NS}-result-content`)?.textContent || '';
-
-      if (original) {
-        lines.push(`> ${original}`);
-        lines.push('');
-        lines.push(translated);
-      } else {
-        lines.push(translated);
-      }
-      if (i < results.length - 1) lines.push('', '---', '');
+      pairs.push({
+        original: para ? para.textContent.trim() : '',
+        translated: div.querySelector(`.${CFG.NS}-result-content`)?.textContent || '',
+      });
     });
 
-    const markdown = lines.join('\n');
-    const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+    if (format === 'text') {
+      handleExportText(pairs, hostname, date);
+    } else {
+      handleExportMarkdown(pairs, hostname, date);
+    }
+  }
+
+  function handleExportMarkdown(pairs, hostname, date) {
+    const lines = [`# 翻译导出 — ${hostname} — ${date}`, ''];
+    pairs.forEach((p, i) => {
+      if (p.original) { lines.push(`> ${p.original}`, '', p.translated); }
+      else { lines.push(p.translated); }
+      if (i < pairs.length - 1) lines.push('', '---', '');
+    });
+    downloadFile(lines.join('\n'), `翻译导出-${hostname}-${date}.md`, 'text/markdown');
+  }
+
+  function handleExportText(pairs, hostname, date) {
+    const lines = [`翻译导出 — ${hostname} — ${date}`, '='.repeat(40), ''];
+    pairs.forEach((p, i) => {
+      if (p.original) { lines.push(`[原文] ${p.original}`, `[译文] ${p.translated}`); }
+      else { lines.push(p.translated); }
+      if (i < pairs.length - 1) lines.push('');
+    });
+    downloadFile(lines.join('\n'), `翻译导出-${hostname}-${date}.txt`, 'text/plain');
+  }
+
+  /** 触发文件下载 */
+  function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `翻译导出-${hostname}-${date}.md`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
