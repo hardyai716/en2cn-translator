@@ -22,7 +22,7 @@
     DEFAULT_SELECTORS: ['p', 'li', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'th'],
     MIN_EN_CHARS: 12,
     MIN_ZH_CHARS: 8,
-    HOVER_DELAY_MS: 200,
+    HOVER_DELAY_MS: 400,
     HIDE_DELAY_MS: 300,
     CACHE_EXPIRY_DAYS: 7,
     MAX_RETRIES: 2,
@@ -278,6 +278,7 @@
         state.customSelectors = s.customSelectors || '';
         state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
         MSG = getMsg(state.direction);
+        updateContextMenu(state.direction);
         return true; // 已有保存的设置
       }
     } catch (_) { /* noop */ }
@@ -295,6 +296,7 @@
         state.customSelectors = request.settings.customSelectors || '';
         state.disabledDomains = Array.isArray(request.settings.disabledDomains) ? request.settings.disabledDomains : [];
         MSG = getMsg(state.direction);
+        updateContextMenu(state.direction);
 
         const nowEffective = isEffectivelyEnabled();
         const wasEffective = wasEnabled && !(Array.isArray(wasDisabledDomains) && wasDisabledDomains.includes(window.location.hostname));
@@ -389,6 +391,11 @@
   function updateBadge() {
     const count = document.querySelectorAll(`.${CFG.NS}-result`).length;
     chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', count }).catch(() => {});
+  }
+
+  function updateContextMenu(direction) {
+    const title = direction === 'en|zh-CN' ? '翻译为中文' : 'Translate to English';
+    chrome.runtime.sendMessage({ type: 'UPDATE_CONTEXT_MENU', title }).catch(() => {});
   }
 
   // ================================================================

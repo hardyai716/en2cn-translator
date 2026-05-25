@@ -72,6 +72,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.action.setBadgeText({ tabId: sender.tab.id, text });
     chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#4285f4' });
   }
+
+  if (request.type === 'UPDATE_CONTEXT_MENU') {
+    const title = request.title || '翻译此段落';
+    chrome.contextMenus.update('translate-paragraph', { title }).catch(() => {});
+  }
 });
 
 // ================================================================
