@@ -455,6 +455,7 @@
     $btn.setAttribute('role', 'button');
     $btn.setAttribute('tabindex', '-1');
     $btn.setAttribute('aria-label', MSG.btnTitle);
+    $btn.title = 'Alt+T 翻译';
     $btn.innerHTML = `<span class="${CFG.NS}-btn-text">${MSG.btnLabel}</span>`;
     Object.assign($btn.style, {
       position: 'fixed', display: 'none', zIndex: '2147483647',
@@ -541,6 +542,7 @@
       pointerEvents: 'auto',
     });
     $batchBtn.textContent = MSG.batchIdle;
+    $batchBtn.title = '翻译本页所有可见段落';
     document.body.appendChild($batchBtn);
 
     $batchBtn.addEventListener('mouseenter', () => { $batchBtn.style.opacity = '1'; });
@@ -822,6 +824,15 @@
     content.addEventListener('blur', () => {
       content.contentEditable = 'false';
       content.classList.remove(`${CFG.NS}-editing`);
+      // 保存编辑后的文本到缓存
+      const newText = content.textContent.trim();
+      if (newText && newText !== text) {
+        const paraKey = hash(para.textContent.trim());
+        if (state.cache.has(paraKey)) {
+          state.cache.set(paraKey, newText);
+          saveCache();
+        }
+      }
     });
     content.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
