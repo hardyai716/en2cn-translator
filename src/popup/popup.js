@@ -30,15 +30,26 @@ let currentDomain = '';
 //  设置
 // ================================================================
 
+const SETTINGS_VERSION = 2;
+
 async function loadSettings() {
   try {
     const stored = await chrome.storage.local.get(STORAGE_KEY);
     const s = stored[STORAGE_KEY];
     if (s) {
-      enabled = s.enabled === true;
-      direction = s.direction || 'en|zh-CN';
-      customSelectors = s.customSelectors || '';
-      disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
+      // 版本迁移：旧版设置 → 默认禁用
+      if (s.version !== SETTINGS_VERSION) {
+        enabled = false;
+        direction = s.direction || 'en|zh-CN';
+        customSelectors = s.customSelectors || '';
+        disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
+        saveSettings(); // 立即写入新版
+      } else {
+        enabled = s.enabled === true;
+        direction = s.direction || 'en|zh-CN';
+        customSelectors = s.customSelectors || '';
+        disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
+      }
     }
   } catch (_) { /* noop */ }
   applyUI();
@@ -47,7 +58,7 @@ async function loadSettings() {
 async function saveSettings() {
   try {
     await chrome.storage.local.set({
-      [STORAGE_KEY]: { enabled, direction, customSelectors, disabledDomains },
+      [STORAGE_KEY]: { enabled, direction, customSelectors, disabledDomains, version: SETTINGS_VERSION },
     });
   } catch (_) { /* noop */ }
 }

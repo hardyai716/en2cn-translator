@@ -268,11 +268,34 @@
   //  设置管理
   // ================================================================
 
+  const SETTINGS_VERSION = 2;
+
   async function loadSettings() {
     try {
       const stored = await chrome.storage.local.get(CFG.SETTINGS_KEY);
       const s = stored[CFG.SETTINGS_KEY];
       if (s !== undefined) {
+        // 版本迁移：旧版设置 → 默认禁用
+        if (s.version !== SETTINGS_VERSION) {
+          state.enabled = false;
+          state.direction = s.direction || 'en|zh-CN';
+          state.customSelectors = s.customSelectors || '';
+          state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
+          MSG = getMsg(state.direction);
+          updateContextMenu(state.direction);
+          // 立即保存迁移后的版本
+          try {
+            await chrome.storage.local.set({
+              [CFG.SETTINGS_KEY]: {
+                enabled: false, direction: state.direction,
+                customSelectors: state.customSelectors,
+                disabledDomains: state.disabledDomains,
+                version: SETTINGS_VERSION,
+              },
+            });
+          } catch (_) { /* noop */ }
+          return true;
+        }
         state.enabled = s.enabled === true;
         state.direction = s.direction || 'en|zh-CN';
         state.customSelectors = s.customSelectors || '';
@@ -974,6 +997,7 @@
               direction: state.direction,
               customSelectors: state.customSelectors,
               disabledDomains: state.disabledDomains,
+              version: SETTINGS_VERSION,
             },
           });
         } catch (_) { /* noop */ }
