@@ -390,12 +390,12 @@
 
   function updateBadge() {
     const count = document.querySelectorAll(`.${CFG.NS}-result`).length;
-    chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', count }).catch(() => {});
+    chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', count }).catch(() => { /* 服务 worker 未就绪 */ });
   }
 
   function updateContextMenu(direction) {
     const title = direction === 'en|zh-CN' ? '翻译为中文' : 'Translate to English';
-    chrome.runtime.sendMessage({ type: 'UPDATE_CONTEXT_MENU', title }).catch(() => {});
+    chrome.runtime.sendMessage({ type: 'UPDATE_CONTEXT_MENU', title }).catch(() => { /* 服务 worker 未就绪 */ });
   }
 
   // ================================================================

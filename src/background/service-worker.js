@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   if (request.type === 'UPDATE_CONTEXT_MENU') {
     const title = request.title || '翻译此段落';
-    chrome.contextMenus.update('translate-paragraph', { title }).catch(() => {});
+    chrome.contextMenus.update('translate-paragraph', { title }).catch(() => { /* 菜单尚未创建 */ });
   }
 });
 
@@ -87,7 +87,7 @@ chrome.commands.onCommand.addListener((command) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'COMMAND', command }).catch(() => {
-        // content script 可能还没加载
+        console.debug('[en2cn] 快捷键: content script 未加载');
       });
     }
   });
@@ -110,7 +110,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'translate-paragraph' && tab?.id) {
     chrome.tabs.sendMessage(tab.id, { type: 'COMMAND', command: 'translate-paragraph' }).catch(() => {
-      // content script 可能还没加载
+      console.debug('[en2cn] 右键菜单: content script 未加载');
     });
   }
 });

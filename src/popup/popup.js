@@ -121,7 +121,7 @@ async function notifyContent(data) {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'SETTINGS_CHANGED', settings: data })
-        .catch(() => { /* content script 可能未加载 */ });
+        .catch(() => { console.debug('[en2cn] 通知 content script 失败'); });
     }
   } catch (_) { /* noop */ }
 }
@@ -198,7 +198,7 @@ btnHideAll.addEventListener('click', async () => {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tabs[0]?.id) {
       chrome.tabs.sendMessage(tabs[0].id, { type: 'COMMAND', command: 'hide-all-translations' })
-        .catch(() => { /* noop */ });
+        .catch(() => { console.debug('[en2cn] 发送隐藏命令失败'); });
     }
   } catch (_) { /* noop */ }
 });
