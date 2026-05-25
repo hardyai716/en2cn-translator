@@ -807,6 +807,32 @@
     const content = document.createElement('div');
     content.className = `${CFG.NS}-result-content`;
     content.textContent = text;
+    // 双击编辑译文
+    content.addEventListener('dblclick', () => {
+      content.contentEditable = 'true';
+      content.classList.add(`${CFG.NS}-editing`);
+      content.focus();
+      // 全选文本
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(content);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    content.addEventListener('blur', () => {
+      content.contentEditable = 'false';
+      content.classList.remove(`${CFG.NS}-editing`);
+    });
+    content.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        content.blur();
+      }
+      if (e.key === 'Escape') {
+        content.textContent = text; // 恢复原文
+        content.blur();
+      }
+    });
 
     div.appendChild(topBar);
     div.appendChild(content);

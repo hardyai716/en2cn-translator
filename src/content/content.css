@@ -165,6 +165,21 @@
   100% { opacity: 0; }
 }
 
+/* ===================== 译文编辑模式 ===================== */
+.en2cn-result-content.en2cn-editing {
+  outline: 2px dashed #4285f4;
+  outline-offset: 2px;
+  border-radius: 2px;
+  padding: 2px 4px;
+  background: #fff;
+  cursor: text;
+}
+
+html.en2cn-dark .en2cn-result-content.en2cn-editing {
+  outline-color: #6ba3ff;
+  background: #1e2a3a;
+}
+
 /* ===================== 错误提示 ===================== */
 .en2cn-error {
   display: block;
