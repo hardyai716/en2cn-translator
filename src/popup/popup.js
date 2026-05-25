@@ -17,6 +17,7 @@ const btnClear = document.getElementById('btn-clear-cache');
 const btnHideAll = document.getElementById('btn-hide-all');
 const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
+const statsText = document.getElementById('stats-text');
 
 let enabled = true;
 let direction = 'en|zh-CN';
@@ -209,4 +210,21 @@ btnHideAll.addEventListener('click', async () => {
 document.addEventListener('DOMContentLoaded', async () => {
   currentDomain = await getCurrentDomain();
   await loadSettings();
+  await fetchStats();
 });
+
+// ================================================================
+//  获取页面统计
+// ================================================================
+
+async function fetchStats() {
+  try {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs[0]?.id) {
+      const resp = await chrome.tabs.sendMessage(tabs[0].id, { type: 'GET_STATS' });
+      if (resp && resp.translated !== undefined) {
+        statsText.textContent = `· ${resp.translated} 段已翻译`;
+      }
+    }
+  } catch (_) { /* content script 可能未加载 */ }
+}

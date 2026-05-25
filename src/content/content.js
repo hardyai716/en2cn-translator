@@ -278,8 +278,10 @@
         state.customSelectors = s.customSelectors || '';
         state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
         MSG = getMsg(state.direction);
+        return true; // 已有保存的设置
       }
     } catch (_) { /* noop */ }
+    return false; // 首次运行，无设置
   }
 
   function listenSettings() {
@@ -337,6 +339,10 @@
         }
       } else if (request.type === 'EXPORT_TRANSLATIONS') {
         handleExport();
+      } else if (request.type === 'GET_STATS') {
+        const translated = document.querySelectorAll(`.${CFG.NS}-result`).length;
+        const hostname = window.location.hostname;
+        return Promise.resolve({ translated, hostname, direction: state.direction });
       }
     });
   }
@@ -365,10 +371,38 @@
 
   function handleShortcutHideAll() {
     document.querySelectorAll(`.${CFG.NS}-result`).forEach((el) => el.remove());
+    updateBadge();
     if ($batchBtn) {
       state.batchState = 'idle';
       updateBatchBtnUI();
     }
+  }
+
+  // ================================================================
+  //  Badge 更新
+  // ================================================================
+
+  function updateBadge() {
+    const count = document.querySelectorAll(`.${CFG.NS}-result`).length;
+    chrome.runtime.sendMessage({ type: 'UPDATE_BADGE', count }).catch(() => {});
+  }
+
+  // ================================================================
+  //  自动语言检测（首次使用）
+  // ================================================================
+
+  function detectPageLanguage() {
+    const paras = document.querySelectorAll('p, h1, h2, h3, h4, li, blockquote');
+    let enScore = 0, zhScore = 0, sampled = 0;
+    for (const p of paras) {
+      if (sampled >= 10) break;
+      const text = p.textContent.trim();
+      if (!text || text.length < 20) continue;
+      sampled++;
+      if (countEnChars(text) > text.length * 0.5) enScore++;
+      if (countZhChars(text) > text.length * 0.3) zhScore++;
+    }
+    return zhScore > enScore ? 'zh-CN|en' : 'en|zh-CN';
   }
 
   // ================================================================
@@ -760,7 +794,11 @@
     closeBtn.className = `${CFG.NS}-result-close`;
     closeBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
     closeBtn.title = MSG.resultCloseTitle;
-    closeBtn.addEventListener('click', (e) => { e.stopPropagation(); div.remove(); });
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      div.remove();
+      updateBadge();
+    });
 
     topBar.appendChild(label);
     topBar.appendChild(copyBtn);
@@ -778,6 +816,8 @@
     if (!noScroll) {
       div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+
+    updateBadge();
   }
 
   function renderError(para, msg) {
@@ -846,7 +886,27 @@
   // ================================================================
 
   async function init() {
-    await Promise.all([loadSettings(), loadCache()]);
+    const [hasSettings] = await Promise.all([loadSettings(), loadCache()]);
+
+    // 首次使用：自动检测页面语言并保存
+    if (!hasSettings) {
+      const detected = detectPageLanguage();
+      if (detected !== state.direction) {
+        state.direction = detected;
+        MSG = getMsg(state.direction);
+        try {
+          await chrome.storage.local.set({
+            [CFG.SETTINGS_KEY]: {
+              enabled: state.enabled,
+              direction: state.direction,
+              customSelectors: state.customSelectors,
+              disabledDomains: state.disabledDomains,
+            },
+          });
+        } catch (_) { /* noop */ }
+      }
+    }
+
     listenSettings();
     listenCommands();
     if (isEffectivelyEnabled()) {

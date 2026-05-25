@@ -66,6 +66,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     return true; // 异步响应
   }
+
+  if (request.type === 'UPDATE_BADGE' && sender.tab?.id) {
+    const text = request.count > 0 ? String(request.count) : '';
+    chrome.action.setBadgeText({ tabId: sender.tab.id, text });
+    chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#4285f4' });
+  }
 });
 
 // ================================================================
