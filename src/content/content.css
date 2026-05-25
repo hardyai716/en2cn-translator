@@ -180,6 +180,17 @@ html.en2cn-dark .en2cn-result-content.en2cn-editing {
   background: #1e2a3a;
 }
 
+/* ===================== 已翻译段落标记 ===================== */
+.en2cn-translated {
+  border-left: 3px solid #4285f4 !important;
+  padding-left: 6px !important;
+  transition: border-color 0.2s;
+}
+
+html.en2cn-dark .en2cn-translated {
+  border-left-color: #6ba3ff !important;
+}
+
 /* ===================== 错误提示 ===================== */
 .en2cn-error {
   display: block;

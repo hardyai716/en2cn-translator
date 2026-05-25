@@ -370,7 +370,11 @@
   }
 
   function handleShortcutHideAll() {
-    document.querySelectorAll(`.${CFG.NS}-result`).forEach((el) => el.remove());
+    document.querySelectorAll(`.${CFG.NS}-result`).forEach((el) => {
+      const para = el.previousElementSibling;
+      if (para) para.classList.remove(`${CFG.NS}-translated`);
+      el.remove();
+    });
     updateBadge();
     if ($batchBtn) {
       state.batchState = 'idle';
@@ -798,6 +802,7 @@
     closeBtn.title = MSG.resultCloseTitle;
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      para.classList.remove(`${CFG.NS}-translated`);
       div.remove();
       updateBadge();
     });
@@ -853,6 +858,9 @@
     if (!noScroll) {
       div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+
+    // 标记原文段落为「已翻译」
+    para.classList.add(`${CFG.NS}-translated`);
 
     updateBadge();
   }
