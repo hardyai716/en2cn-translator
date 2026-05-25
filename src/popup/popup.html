@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>en2cn Translator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 320px;
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      color: #222;
+      background: #fff;
+      padding: 16px;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .header h1 { font-size: 15px; font-weight: 700; color: #4285f4; }
+    .header .version { font-size: 11px; color: #999; font-weight: 400; }
+    .section { padding: 10px 0; border-top: 1px solid #f0f0f0; }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 32px;
+    }
+    .row label { font-size: 13px; color: #444; }
+
+    /* Toggle */
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      background: #ccc; border-radius: 12px;
+      cursor: pointer; transition: background 0.25s;
+      flex-shrink: 0;
+    }
+    .toggle.active { background: #4285f4; }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 20px; height: 20px;
+      background: #fff; border-radius: 50%;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.active::after { transform: translateX(20px); }
+
+    select {
+      padding: 4px 8px; border: 1px solid #ddd;
+      border-radius: 6px; background: #fafafa;
+      font-size: 13px; color: #333; cursor: pointer; outline: none;
+    }
+    select:focus { border-color: #4285f4; }
+
+    .field-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .field-row label { font-size: 12px; color: #888; }
+    .field-row input {
+      padding: 6px 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #333;
+      outline: none;
+      width: 100%;
+      font-family: "SF Mono", "Consolas", monospace;
+    }
+    .field-row input:focus { border-color: #4285f4; }
+    .field-row .hint { font-size: 11px; color: #bbb; }
+
+    .site-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .site-row .domain {
+      flex: 1;
+      font-size: 12px;
+      color: #666;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: "SF Mono", "Consolas", monospace;
+    }
+    .site-btn {
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: #fafafa;
+      font-size: 12px;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .site-btn:hover { background: #f0f0f0; }
+    .site-btn.danger { color: #e74c3c; border-color: #ffd7d7; background: #fff5f5; }
+    .site-btn.danger:hover { background: #ffe0e0; }
+    .site-btn.active { color: #4285f4; border-color: #d0e3ff; background: #f0f7ff; }
+    .site-btn.active:hover { background: #e0eeff; }
+
+    .btn {
+      display: block; width: 100%; padding: 8px 0; margin-top: 8px;
+      border: 1px solid #e0e0e0; border-radius: 6px;
+      background: #fafafa; font-size: 13px;
+      cursor: pointer; color: #555; transition: background 0.15s;
+    }
+    .btn:hover { background: #f0f0f0; }
+    .btn:active { background: #e8e8e8; }
+
+    .status-bar {
+      margin-top: 10px; padding: 8px 0 0;
+      border-top: 1px solid #f0f0f0;
+      font-size: 12px; color: #999; text-align: center;
+    }
+    .status-bar .dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; margin-right: 4px; vertical-align: middle;
+    }
+    .status-bar .dot.on { background: #34a853; }
+    .status-bar .dot.off { background: #ccc; }
+    .status-bar .dot.site-off { background: #f39c12; }
+    .shortcut-hint { margin-top: 6px; font-size: 11px; color: #bbb; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>en2cn Translator</h1>
+    <span class="version">v1.4</span>
+  </div>
+
+  <!-- 启用开关 -->
+  <div class="section">
+    <div class="row">
+      <label for="toggle-enable">启用翻译</label>
+      <div id="toggle-enable" class="toggle active" role="switch" tabindex="0"></div>
+    </div>
+  </div>
+
+  <!-- 站点禁用 -->
+  <div class="section">
+    <div class="row" style="flex-direction:column;align-items:stretch;gap:6px;">
+      <div class="site-row">
+        <span class="domain" id="current-domain">加载中…</span>
+        <button id="btn-site-toggle" class="site-btn">—</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 语言方向 -->
+  <div class="section">
+    <div class="row">
+      <label>翻译方向</label>
+      <select id="lang-direction">
+        <option value="en|zh-CN">英语 → 中文</option>
+        <option value="zh-CN|en">中文 → 英语</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- 自定义选择器 -->
+  <div class="section">
+    <div class="field-row">
+      <label>自定义段落选择器（逗号分隔）</label>
+      <input type="text" id="custom-selectors" placeholder=".article-body, .post-content" />
+      <span class="hint">部分网站用 &lt;div&gt; 模拟段落，在此输入 CSS 选择器</span>
+    </div>
+  </div>
+
+  <!-- 操作 -->
+  <div class="section" style="padding-bottom:0;">
+    <button id="btn-export" class="btn">📥 导出译文 (Markdown)</button>
+    <button id="btn-clear-cache" class="btn">清空翻译缓存</button>
+    <button id="btn-hide-all" class="btn">隐藏所有译文</button>
+  </div>
+
+  <!-- 状态 -->
+  <div class="status-bar">
+    <span class="dot on" id="status-dot"></span>
+    <span id="status-text">已启用</span>
+  </div>
+
+  <div class="shortcut-hint">
+    Alt+T 翻译 · Alt+H 隐藏 · 右下角按钮批量翻译
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

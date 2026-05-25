@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "en2cn Translator",
+  "version": "1.7.0",
+  "description": "段落级中英互译：鼠标悬停段落，点击「译」按钮，译文出现在段落下方，原文不替换。支持快捷键。",
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "en2cn Translator"
+  },
+  "commands": {
+    "translate-paragraph": {
+      "suggested_key": {
+        "default": "Alt+T",
+        "mac": "Alt+T"
+      },
+      "description": "翻译当前段落"
+    },
+    "hide-all-translations": {
+      "suggested_key": {
+        "default": "Alt+H",
+        "mac": "Alt+H"
+      },
+      "description": "隐藏所有译文"
+    }
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*",
+    "https://api.mymemory.translated.net/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["src/content/content.js"],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "public/icon16.png",
+    "48": "public/icon48.png",
+    "128": "public/icon128.png"
+  }
+}

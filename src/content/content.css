@@ -1,0 +1,311 @@
+/* ===================== 按钮内 spinner 动画 ===================== */
+@keyframes en2cn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===================== 翻译结果 ===================== */
+.en2cn-result {
+  display: block;
+  clear: both;
+  padding: 8px 14px 10px;
+  margin: 8px 0 12px 0;
+  background: #f5f9ff;
+  border: 1px solid #e0ecff;
+  border-left: 4px solid #4285f4;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: #222;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+/* 译文顶栏：标签 + 操作按钮 */
+.en2cn-result-topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+/* 译文源语言标记 */
+.en2cn-result-label {
+  flex: 1;
+  font-size: 11px;
+  color: #4285f4;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* 复制按钮 */
+.en2cn-result-copy {
+  position: relative;
+  width: 26px;
+  height: 22px;
+  padding: 2px 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #999;
+  font-size: 13px;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.en2cn-result-copy:hover {
+  background: #e8e8e8;
+  color: #4285f4;
+}
+
+.en2cn-result-copy:active {
+  background: #d0d0d0;
+}
+
+/* 复制按钮点击后短暂着色 */
+.en2cn-result-copy.en2cn-copied {
+  color: #34a853;
+}
+
+/* 复制反馈浮层 */
+.en2cn-copy-feedback {
+  display: none;
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #323232;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 400;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  animation: en2cn-feedbackIn 0.15s ease;
+}
+
+.en2cn-copy-feedback::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #323232;
+}
+
+@keyframes en2cn-feedbackIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* 收起按钮 */
+.en2cn-result-close {
+  width: 26px;
+  height: 22px;
+  padding: 2px 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #999;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.en2cn-result-close:hover {
+  background: #e8e8e8;
+  color: #666;
+}
+
+.en2cn-result-close:active {
+  background: #ddd;
+}
+
+.en2cn-result-content {
+  padding-right: 4px;
+}
+
+/* ===================== 语言不匹配提示 ===================== */
+.en2cn-hint {
+  display: block;
+  padding: 6px 12px;
+  margin: 6px 0;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-left: 4px solid #ffa000;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85em;
+  color: #e65100;
+  line-height: 1.5;
+  animation: en2cn-fadeOut 2s ease forwards;
+}
+
+@keyframes en2cn-fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ===================== 错误提示 ===================== */
+.en2cn-error {
+  display: block;
+  padding: 8px 12px;
+  margin: 6px 0;
+  background: #fff5f5;
+  border: 1px solid #ffd7d7;
+  border-left: 4px solid #e74c3c;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85em;
+  color: #c0392b;
+  line-height: 1.5;
+}
+
+/* =================================================================
+   深色模式适配
+   当系统（或浏览器）启用深色主题时自动切换为暗色样式
+   ================================================================= */
+@media (prefers-color-scheme: dark) {
+
+  /* --- 翻译结果 --- */
+  .en2cn-result {
+    background: #1a2332;
+    border-color: #2a3a50;
+    color: #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .en2cn-result-label {
+    color: #6ba3ff;
+    opacity: 0.85;
+  }
+
+  .en2cn-result-copy {
+    color: #8899aa;
+  }
+
+  .en2cn-result-copy:hover {
+    background: #2a3a50;
+    color: #6ba3ff;
+  }
+
+  .en2cn-result-copy:active {
+    background: #3a4a60;
+  }
+
+  .en2cn-result-close {
+    color: #8899aa;
+  }
+
+  .en2cn-result-close:hover {
+    background: #2a3a50;
+    color: #bbb;
+  }
+
+  .en2cn-result-close:active {
+    background: #3a4a60;
+  }
+
+  /* --- 提示 --- */
+  .en2cn-hint {
+    background: #3d3015;
+    border-color: #5a4a20;
+    color: #ffb74d;
+  }
+
+  /* --- 错误 --- */
+  .en2cn-error {
+    background: #3d1a1a;
+    border-color: #5a2a2a;
+    color: #ff7a7a;
+  }
+
+  /* --- 复制反馈浮层（深色下用更亮的灰色） --- */
+  .en2cn-copy-feedback {
+    background: #555;
+  }
+
+  .en2cn-copy-feedback::after {
+    border-top-color: #555;
+  }
+}
+
+/* =================================================================
+   深色模式（手动触发 — 通过 html.en2cn-dark class 切换）
+   用于测试页面手动模拟暗色场景，样式与 @media 块保持一致
+   ================================================================= */
+html.en2cn-dark .en2cn-result {
+  background: #1a2332;
+  border-color: #2a3a50;
+  color: #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+html.en2cn-dark .en2cn-result-label {
+  color: #6ba3ff;
+  opacity: 0.85;
+}
+
+html.en2cn-dark .en2cn-result-copy {
+  color: #8899aa;
+}
+
+html.en2cn-dark .en2cn-result-copy:hover {
+  background: #2a3a50;
+  color: #6ba3ff;
+}
+
+html.en2cn-dark .en2cn-result-copy:active {
+  background: #3a4a60;
+}
+
+html.en2cn-dark .en2cn-result-close {
+  color: #8899aa;
+}
+
+html.en2cn-dark .en2cn-result-close:hover {
+  background: #2a3a50;
+  color: #bbb;
+}
+
+html.en2cn-dark .en2cn-result-close:active {
+  background: #3a4a60;
+}
+
+html.en2cn-dark .en2cn-hint {
+  background: #3d3015;
+  border-color: #5a4a20;
+  color: #ffb74d;
+}
+
+html.en2cn-dark .en2cn-error {
+  background: #3d1a1a;
+  border-color: #5a2a2a;
+  color: #ff7a7a;
+}
+
+html.en2cn-dark .en2cn-copy-feedback {
+  background: #555;
+}
+
+html.en2cn-dark .en2cn-copy-feedback::after {
+  border-top-color: #555;
+}
