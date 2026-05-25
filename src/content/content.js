@@ -67,7 +67,7 @@
     isTranslating: false,
     showTimer: null,
     hideTimer: null,
-    enabled: true,
+    enabled: false,
     direction: 'en|zh-CN',
     scrollRafId: null,
     // 批量翻译
@@ -273,7 +273,7 @@
       const stored = await chrome.storage.local.get(CFG.SETTINGS_KEY);
       const s = stored[CFG.SETTINGS_KEY];
       if (s !== undefined) {
-        state.enabled = s.enabled !== false;
+        state.enabled = s.enabled === true;
         state.direction = s.direction || 'en|zh-CN';
         state.customSelectors = s.customSelectors || '';
         state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];

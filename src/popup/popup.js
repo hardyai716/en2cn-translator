@@ -20,7 +20,7 @@ const statusDot = document.getElementById('status-dot');
 const statusText = document.getElementById('status-text');
 const statsText = document.getElementById('stats-text');
 
-let enabled = true;
+let enabled = false;
 let direction = 'en|zh-CN';
 let customSelectors = '';
 let disabledDomains = [];
@@ -35,7 +35,7 @@ async function loadSettings() {
     const stored = await chrome.storage.local.get(STORAGE_KEY);
     const s = stored[STORAGE_KEY];
     if (s) {
-      enabled = s.enabled !== false;
+      enabled = s.enabled === true;
       direction = s.direction || 'en|zh-CN';
       customSelectors = s.customSelectors || '';
       disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
@@ -84,13 +84,15 @@ function applyUI() {
   // 状态栏
   if (!enabled) {
     statusDot.className = 'dot off';
-    statusText.textContent = '已禁用（全局）';
+    statusText.textContent = '已禁用 — 点击上方开关启用';
+    statsText.style.display = 'none';
   } else if (siteDisabled) {
     statusDot.className = 'dot site-off';
     statusText.textContent = `已禁用（${currentDomain}）`;
   } else {
     statusDot.className = 'dot on';
     statusText.textContent = '已启用';
+    statsText.style.display = 'inline';
   }
 }
 
