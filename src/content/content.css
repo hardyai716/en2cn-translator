@@ -205,6 +205,37 @@ html.en2cn-dark .en2cn-translated {
   line-height: 1.5;
 }
 
+/* ===================== 浮层模式 ===================== */
+.en2cn-result-overlay {
+  margin: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  animation: en2cn-overlayIn 0.2s ease;
+  max-height: 40vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #e0ecff;
+  border-left: 4px solid #4285f4;
+  padding: 8px 14px 10px;
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: #222;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  word-break: break-word;
+}
+
+html.en2cn-dark .en2cn-result-overlay {
+  background: #1a2332;
+  border-color: #2a3a50;
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes en2cn-overlayIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* =================================================================
    深色模式适配
    当系统（或浏览器）启用深色主题时自动切换为暗色样式

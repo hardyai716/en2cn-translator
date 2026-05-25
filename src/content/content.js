@@ -77,6 +77,8 @@
     batchAbort: false,
     // 自定义选择器
     customSelectors: '',
+    // 译文展示方式
+    displayMode: 'insert',
     // 站点禁用列表
     disabledDomains: [],
   };
@@ -280,6 +282,7 @@
           state.enabled = false;
           state.direction = s.direction || 'en|zh-CN';
           state.customSelectors = s.customSelectors || '';
+          state.displayMode = s.displayMode || 'insert';
           state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
           MSG = getMsg(state.direction);
           updateContextMenu(state.direction);
@@ -299,6 +302,7 @@
         state.enabled = s.enabled === true;
         state.direction = s.direction || 'en|zh-CN';
         state.customSelectors = s.customSelectors || '';
+        state.displayMode = s.displayMode || 'insert';
         state.disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
         MSG = getMsg(state.direction);
         updateContextMenu(state.direction);
@@ -318,6 +322,7 @@
         state.direction = request.settings.direction || 'en|zh-CN';
         state.customSelectors = request.settings.customSelectors || '';
         state.disabledDomains = Array.isArray(request.settings.disabledDomains) ? request.settings.disabledDomains : [];
+        state.displayMode = request.settings.displayMode || 'insert';
         MSG = getMsg(state.direction);
         updateContextMenu(state.direction);
 
@@ -400,6 +405,7 @@
       if (para) para.classList.remove(`${CFG.NS}-translated`);
       el.remove();
     });
+    overlays.clear();
     updateBadge();
     if ($batchBtn) {
       state.batchState = 'idle';
@@ -884,6 +890,7 @@
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       para.classList.remove(`${CFG.NS}-translated`);
+      overlays.delete(div);
       div.remove();
       updateBadge();
     });
@@ -933,11 +940,19 @@
 
     div.appendChild(topBar);
     div.appendChild(content);
-    para.parentNode.insertBefore(div, para.nextSibling);
 
-    // 只有非批量翻译时才自动滚动到译文
-    if (!noScroll) {
-      div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (state.displayMode === 'overlay') {
+      // 浮层模式：固定定位在段落下方，不占文档流
+      div.classList.add(`${CFG.NS}-result-overlay`);
+      positionOverlay(div, para);
+      document.body.appendChild(div);
+      registerOverlay(div, para);
+    } else {
+      // 插入模式：块级元素插入段落下方
+      para.parentNode.insertBefore(div, para.nextSibling);
+      if (!noScroll) {
+        div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
 
     // 标记原文段落为「已翻译」
@@ -965,6 +980,34 @@
   }
 
   // ================================================================
+  //  浮层管理
+  // ================================================================
+
+  const overlays = new Map(); // div → para
+
+  function positionOverlay(div, para) {
+    const rect = para.getBoundingClientRect();
+    Object.assign(div.style, {
+      position: 'fixed',
+      left: Math.max(rect.left, 4) + 'px',
+      top: (rect.bottom + 4) + 'px',
+      width: Math.min(rect.width, window.innerWidth - 8) + 'px',
+      zIndex: '2147483646',
+    });
+  }
+
+  function registerOverlay(div, para) {
+    overlays.set(div, para);
+  }
+
+  function repositionOverlays() {
+    for (const [div, para] of overlays) {
+      if (!document.body.contains(div)) { overlays.delete(div); continue; }
+      positionOverlay(div, para);
+    }
+  }
+
+  // ================================================================
   //  滚动节流
   // ================================================================
 
@@ -972,11 +1015,15 @@
     if (state.scrollRafId) return;
     state.scrollRafId = requestAnimationFrame(() => {
       state.scrollRafId = null;
-      if (!$btn || $btn.style.display === 'none' || !state.btnPara) return;
-      const rect = state.btnPara.getBoundingClientRect();
-      if (rect.bottom < 0 || rect.top > window.innerHeight) { hideBtn(); return; }
-      $btn.style.left = Math.min(rect.right - 30, window.innerWidth - 38) + 'px';
-      $btn.style.top = Math.max(rect.top + 4, 4) + 'px';
+      // 段落按钮重定位
+      if ($btn && $btn.style.display !== 'none' && state.btnPara) {
+        const rect = state.btnPara.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) { hideBtn(); return; }
+        $btn.style.left = Math.min(rect.right - 30, window.innerWidth - 38) + 'px';
+        $btn.style.top = Math.max(rect.top + 4, 4) + 'px';
+      }
+      // 浮层重定位
+      repositionOverlays();
     });
   }
 

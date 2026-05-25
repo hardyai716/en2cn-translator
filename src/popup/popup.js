@@ -12,6 +12,7 @@ const domainEl = document.getElementById('current-domain');
 const siteToggleBtn = document.getElementById('btn-site-toggle');
 const langSelect = document.getElementById('lang-direction');
 const customSelectorsInput = document.getElementById('custom-selectors');
+const displayModeSelect = document.getElementById('display-mode');
 const btnExportMd = document.getElementById('btn-export-md');
 const btnExportTxt = document.getElementById('btn-export-txt');
 const btnClear = document.getElementById('btn-clear-cache');
@@ -23,6 +24,7 @@ const statsText = document.getElementById('stats-text');
 let enabled = false;
 let direction = 'en|zh-CN';
 let customSelectors = '';
+let displayMode = 'insert';
 let disabledDomains = [];
 let currentDomain = '';
 
@@ -42,12 +44,14 @@ async function loadSettings() {
         enabled = false;
         direction = s.direction || 'en|zh-CN';
         customSelectors = s.customSelectors || '';
+        displayMode = s.displayMode || 'insert';
         disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
         saveSettings(); // 立即写入新版
       } else {
         enabled = s.enabled === true;
         direction = s.direction || 'en|zh-CN';
         customSelectors = s.customSelectors || '';
+        displayMode = s.displayMode || 'insert';
         disabledDomains = Array.isArray(s.disabledDomains) ? s.disabledDomains : [];
       }
     }
@@ -58,7 +62,7 @@ async function loadSettings() {
 async function saveSettings() {
   try {
     await chrome.storage.local.set({
-      [STORAGE_KEY]: { enabled, direction, customSelectors, disabledDomains, version: SETTINGS_VERSION },
+      [STORAGE_KEY]: { enabled, direction, customSelectors, displayMode, disabledDomains, version: SETTINGS_VERSION },
     });
   } catch (_) { /* noop */ }
 }
@@ -73,6 +77,7 @@ function applyUI() {
 
   // 自定义选择器
   customSelectorsInput.value = customSelectors;
+  displayModeSelect.value = displayMode;
 
   // 站点禁用
   const siteDisabled = disabledDomains.includes(currentDomain);
@@ -174,6 +179,13 @@ langSelect.addEventListener('change', async () => {
   direction = langSelect.value;
   await saveSettings();
   notifyContent({ enabled, direction, customSelectors, disabledDomains });
+});
+
+// 展示方式
+displayModeSelect.addEventListener('change', async () => {
+  displayMode = displayModeSelect.value;
+  await saveSettings();
+  notifyContent({ enabled, direction, customSelectors, displayMode, disabledDomains });
 });
 
 // 自定义选择器
