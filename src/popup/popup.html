@@ -189,6 +189,16 @@
     <button id="btn-hide-all" class="btn">隐藏所有译文</button>
   </div>
 
+  <!-- 历史记录 -->
+  <div class="section" style="padding-bottom:0;">
+    <div id="history-toggle" style="display:flex;align-items:center;gap:4px;cursor:pointer;padding:6px 0;font-size:13px;color:#888;user-select:none;">
+      <span id="history-arrow">▶</span>
+      <span>历史记录</span>
+      <span id="history-count" style="color:#bbb;font-size:11px;"></span>
+    </div>
+    <div id="history-list" style="display:none;max-height:180px;overflow-y:auto;"></div>
+  </div>
+
   <!-- 状态 -->
   <div class="status-bar">
     <span class="dot on" id="status-dot"></span>

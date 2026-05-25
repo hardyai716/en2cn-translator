@@ -422,6 +422,35 @@
   }
 
   // ================================================================
+  //  翻译历史记录
+  // ================================================================
+
+  function saveHistory() {
+    try {
+      const key = 'en2cn-history';
+      chrome.storage.local.get(key, (stored) => {
+        let history = Array.isArray(stored[key]) ? stored[key] : [];
+        const entry = {
+          url: window.location.href,
+          title: document.title || window.location.hostname,
+          hostname: window.location.hostname,
+          translatedAt: Date.now(),
+        };
+        // 同 URL 更新，否则插入头部
+        const idx = history.findIndex((h) => h.url === entry.url);
+        if (idx >= 0) {
+          history[idx].translatedAt = entry.translatedAt;
+          history[idx].title = entry.title;
+        } else {
+          history.unshift(entry);
+          if (history.length > 20) history.pop();
+        }
+        chrome.storage.local.set({ [key]: history });
+      });
+    } catch (_) { /* noop */ }
+  }
+
+  // ================================================================
   //  自动语言检测（首次使用）
   // ================================================================
 
@@ -711,6 +740,7 @@
     }
 
     state.batchState = 'done';
+    saveHistory();
     updateBatchBtnUI();
   }
 
@@ -912,6 +942,10 @@
 
     // 标记原文段落为「已翻译」
     para.classList.add(`${CFG.NS}-translated`);
+
+    // 首次翻译时保存历史
+    const resultCount = document.querySelectorAll(`.${CFG.NS}-result`).length;
+    if (resultCount === 1) saveHistory();
 
     updateBadge();
   }

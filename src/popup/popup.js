@@ -230,11 +230,89 @@ document.addEventListener('DOMContentLoaded', async () => {
   currentDomain = await getCurrentDomain();
   await loadSettings();
   await fetchStats();
+  loadHistory();
 });
 
 // ================================================================
 //  获取页面统计
 // ================================================================
+
+// ================================================================
+//  历史记录
+// ================================================================
+
+const HISTORY_KEY = 'en2cn-history';
+
+function loadHistory() {
+  chrome.storage.local.get(HISTORY_KEY, (stored) => {
+    const list = document.getElementById('history-list');
+    const count = document.getElementById('history-count');
+    const toggle = document.getElementById('history-toggle');
+    const arrow = document.getElementById('history-arrow');
+    const items = Array.isArray(stored[HISTORY_KEY]) ? stored[HISTORY_KEY] : [];
+
+    count.textContent = items.length ? `(${items.length})` : '';
+
+    // 清空旧列表
+    list.innerHTML = '';
+
+    if (items.length === 0) {
+      list.innerHTML = '<div style="padding:8px 4px;font-size:12px;color:#ccc;">暂无历史</div>';
+    } else {
+      items.slice(0, 15).forEach((item) => {
+        const row = document.createElement('div');
+        Object.assign(row.style, {
+          padding: '6px 4px',
+          fontSize: '12px',
+          borderBottom: '1px solid #f0f0f0',
+          cursor: 'pointer',
+          display: 'flex',
+          gap: '6px',
+          alignItems: 'center',
+        });
+        row.addEventListener('mouseenter', () => { row.style.background = '#f5f5f5'; });
+        row.addEventListener('mouseleave', () => { row.style.background = ''; });
+        row.addEventListener('click', () => { chrome.tabs.create({ url: item.url }); });
+
+        const favicon = document.createElement('img');
+        favicon.src = `https://www.google.com/s2/favicons?domain=${item.hostname}`;
+        favicon.style.width = '14px';
+        favicon.style.height = '14px';
+        favicon.style.flexShrink = '0';
+
+        const text = document.createElement('span');
+        text.style.flex = '1';
+        text.style.overflow = 'hidden';
+        text.style.textOverflow = 'ellipsis';
+        text.style.whiteSpace = 'nowrap';
+        text.textContent = item.title || item.hostname;
+
+        const time = document.createElement('span');
+        time.style.color = '#bbb';
+        time.style.fontSize = '11px';
+        time.style.flexShrink = '0';
+        const diff = Date.now() - item.translatedAt;
+        if (diff < 60000) time.textContent = '刚刚';
+        else if (diff < 3600000) time.textContent = `${Math.floor(diff / 60000)}分前`;
+        else if (diff < 86400000) time.textContent = `${Math.floor(diff / 3600000)}小时前`;
+        else time.textContent = `${Math.floor(diff / 86400000)}天前`;
+
+        row.appendChild(favicon);
+        row.appendChild(text);
+        row.appendChild(time);
+        list.appendChild(row);
+      });
+    }
+
+    // 折叠交互
+    let expanded = false;
+    toggle.onclick = () => {
+      expanded = !expanded;
+      list.style.display = expanded ? 'block' : 'none';
+      arrow.textContent = expanded ? '▼' : '▶';
+    };
+  });
+}
 
 async function fetchStats() {
   try {
