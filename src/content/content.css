@@ -208,32 +208,45 @@ html.en2cn-dark .en2cn-translated {
 /* ===================== 浮层模式 ===================== */
 .en2cn-result-overlay {
   margin: 0;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
   animation: en2cn-overlayIn 0.2s ease;
-  max-height: 40vh;
   overflow-y: auto;
-  background: #fff;
-  border: 1px solid #e0ecff;
-  border-left: 4px solid #4285f4;
-  padding: 8px 14px 10px;
+  background: #f5f9ff;
+  border: 2px solid #4285f4;
+  padding: 8px 12px 10px;
   font-size: 0.95em;
   line-height: 1.7;
   color: #222;
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   word-break: break-word;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 html.en2cn-dark .en2cn-result-overlay {
   background: #1a2332;
-  border-color: #2a3a50;
+  border-color: #6ba3ff;
   color: #e0e0e0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes en2cn-overlayIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 浮层内的顶栏 */
+.en2cn-result-overlay .en2cn-result-topbar {
+  flex-shrink: 0;
+}
+
+/* 浮层内的译文内容可滚动 */
+.en2cn-result-overlay .en2cn-result-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 /* =================================================================

@@ -989,10 +989,11 @@
     const rect = para.getBoundingClientRect();
     Object.assign(div.style, {
       position: 'fixed',
-      left: Math.max(rect.left, 4) + 'px',
-      top: (rect.bottom + 4) + 'px',
-      width: Math.min(rect.width, window.innerWidth - 8) + 'px',
+      left: rect.left + 'px',
+      top: rect.top + 'px',
+      width: rect.width + 'px',
       zIndex: '2147483646',
+      minHeight: Math.max(rect.height, 30) + 'px',
     });
   }
 
