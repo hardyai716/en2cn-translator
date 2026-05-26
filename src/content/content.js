@@ -987,6 +987,7 @@
 
   function positionOverlay(div, para) {
     const rect = para.getBoundingClientRect();
+    const cs = getComputedStyle(para);
     Object.assign(div.style, {
       position: 'fixed',
       left: rect.left + 'px',
@@ -994,6 +995,14 @@
       width: rect.width + 'px',
       zIndex: '2147483646',
       minHeight: Math.max(rect.height, 30) + 'px',
+      // 继承原文样式，让译文看起来像页面原生内容
+      fontFamily: cs.fontFamily,
+      fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight,
+      lineHeight: cs.lineHeight,
+      color: cs.color,
+      textAlign: cs.textAlign,
+      letterSpacing: cs.letterSpacing,
     });
   }
 
