@@ -224,37 +224,39 @@ html.en2cn-dark .en2cn-translated {
   to   { opacity: 1; }
 }
 
-/* 替换模式顶栏：只有一行小字 + 关闭按钮 */
+/* 替换模式：操作按钮在译文内部右上角，悬停可见，不超出覆盖区域 */
 .en2cn-result-overlay .en2cn-result-topbar {
   flex-shrink: 0;
   margin-bottom: 0;
   position: absolute;
-  top: -18px;
-  right: 0;
-  gap: 2px;
-  opacity: 0.5;
-  transition: opacity 0.15s;
+  top: 2px;
+  right: 4px;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.2s;
   z-index: 1;
 }
 
-.en2cn-result-overlay .en2cn-result-topbar:hover {
+.en2cn-result-overlay:hover .en2cn-result-topbar {
+  opacity: 0.6;
+}
+
+.en2cn-result-overlay:hover .en2cn-result-topbar:hover {
   opacity: 1;
 }
 
 .en2cn-result-overlay .en2cn-result-label {
-  font-size: 10px;
-  color: #4285f4;
-  flex: none;
+  display: none; /* 替换模式不显示语言标签，避免溢出 */
 }
 
 .en2cn-result-overlay .en2cn-result-copy {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .en2cn-result-overlay .en2cn-result-close {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 /* 替换模式下的译文文本 */
