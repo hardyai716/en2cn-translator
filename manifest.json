@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "en2cn Translator",
-  "version": "1.19.0",
+  "version": "1.20.0",
   "description": "段落级中英互译：鼠标悬停段落，点击「译」按钮，译文出现在段落下方，原文不替换。支持快捷键。",
   "action": {
     "default_popup": "src/popup/popup.html",

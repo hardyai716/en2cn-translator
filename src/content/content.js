@@ -988,6 +988,11 @@
   function positionOverlay(div, para) {
     const rect = para.getBoundingClientRect();
     const cs = getComputedStyle(para);
+    // 取段落自身的背景色，若无则取页面背景色，确保覆盖原文
+    let bg = cs.backgroundColor;
+    if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') {
+      bg = getComputedStyle(document.body).backgroundColor;
+    }
     Object.assign(div.style, {
       position: 'fixed',
       left: rect.left + 'px',
@@ -1003,6 +1008,7 @@
       color: cs.color,
       textAlign: cs.textAlign,
       letterSpacing: cs.letterSpacing,
+      backgroundColor: bg,
     });
   }
 

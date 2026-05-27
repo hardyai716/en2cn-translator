@@ -212,13 +212,12 @@ html.en2cn-dark .en2cn-translated {
   animation: en2cn-fadeIn 0.15s ease;
   overflow: hidden;
   box-sizing: border-box;
-  background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
   display: flex;
   flex-direction: column;
-}
+  /* background 由 JS 从原文继承 */
 
 @keyframes en2cn-fadeIn {
   from { opacity: 0; }
